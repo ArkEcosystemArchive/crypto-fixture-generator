@@ -17,9 +17,10 @@ const registerCommand = (name, description) => {
   return app
     .command(name)
     .description(description)
-    .option('-p, --passphrase <network>', 'Generate the transaction with a second passphrase.', 'passphrase')
-    .option('-s, --second-passphrase <network>', 'Generate the transaction with a second passphrase.')
-    .option('-n, --network <network>', 'The network to use for cryptography [mainnet|devnet]', 'devnet')
+    .option('-p, --passphrase <value>', 'Generate the transaction with a second passphrase.', 'passphrase')
+    .option('-s, --second-passphrase <value>', 'Generate the transaction with a second passphrase.')
+    .option('-n, --network <value>', 'The network to use for cryptography [mainnet|devnet]', 'devnet')
+    .option('-f, --file <value>', 'write the json encoded transaction to the given file')
     .option('-c, --copy', 'copy the transactions to the clipboard')
     .option('-l, --log', 'log the json encoded transaction')
 }
