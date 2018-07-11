@@ -1,14 +1,7 @@
 #!/usr/bin/env node
 
 const app = require('commander')
-
-const {
-  createTransfer,
-  createSecondSignatureRegistration,
-  createDelegateRegistration,
-  createVote,
-  createUnvote
-} = require('../lib/commands')
+const commands = require('../lib/commands')
 
 app
   .version('1.0.0')
@@ -29,22 +22,25 @@ registerCommand('transfer', 'Generate a transfer transaction.')
   .option('-r, --recipient <value>', 'recipient address')
   .option('-a, --amount <value>', 'transaction amount', 200000000)
   .option('-v, --vendorField <value>', 'transaction vendor field')
-  .action(cmd => createTransfer(cmd))
+  .action(cmd => commands.createTransfer(cmd))
 
 registerCommand('second-signature-registration', 'Generate a second signature registration transaction.')
-  .action(cmd => createSecondSignatureRegistration(cmd))
+  .action(cmd => commands.createSecondSignatureRegistration(cmd))
 
 registerCommand('delegate-registration', 'Generate a delegate registration transaction.')
   .option('-u, --username <value>')
-  .action(cmd => createDelegateRegistration(cmd))
+  .action(cmd => commands.createDelegateRegistration(cmd))
 
 registerCommand('vote', 'Generate a vote transaction.')
   .option('-d, --delegate <value>', 'delegate public key')
-  .action(cmd => createVote(cmd))
+  .action(cmd => commands.createVote(cmd))
 
 registerCommand('unvote', 'Generate a unvote transaction.')
   .option('-d, --delegate <value>', 'delegate public key')
-  .action(cmd => createUnvote(cmd))
+  .action(cmd => commands.createUnvote(cmd))
+
+registerCommand('identity', 'Generate an identity.')
+  .action(cmd => commands.createIdentity(cmd))
 
 if (!process.argv.slice(2).length) {
   app.outputHelp()
