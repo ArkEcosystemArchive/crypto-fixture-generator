@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+
+const app = require('commander')
+
+const {
+  createTransfer,
+  createSecondSignatureRegistration,
+  createDelegateRegistration,
+  createVote,
+  createUnvote
+} = require('../lib/commands')
+
+app
+  .version('1.0.0')
+
+const registerCommand = (name, description) => {
+  return app
+    .command(name)
+    .description(description)
+    .option('-p, --passphrase <network>', 'Generate the transaction with a second passphrase.', 'passphrase')
+    .option('-s, --second-passphrase <network>', 'Generate the transaction with a second passphrase.')
+    .option('-n, --network <network>', 'The network to use for cryptography [mainnet|devnet]', 'devnet')
+    .option('-c, --copy', 'copy the transactions to the clipboard')
+    .option('-l, --log', 'log the json encoded transaction')
+}
+
+registerCommand('transfer', 'Generate a transfer transaction.')
+  .option('-r, --recipient <value>', 'recipient address')
+  .option('-a, --amount <value>', 'transaction amount', 200000000)
+  .option('-v, --vendorField <value>', 'transaction vendor field')
+  .action(cmd => createTransfer(cmd))
+
+registerCommand('second-signature-registration', 'Generate a second signature registration transaction.')
+  .action(cmd => createSecondSignatureRegistration(cmd))
+
+registerCommand('delegate-registration', 'Generate a delegate registration transaction.')
+  .option('-u, --username <value>')
+  .action(cmd => createDelegateRegistration(cmd))
+
+registerCommand('vote', 'Generate a vote transaction.')
+  .option('-d, --delegate <value>', 'delegate public key')
+  .action(cmd => createVote(cmd))
+
+registerCommand('unvote', 'Generate a unvote transaction.')
+  .option('-d, --delegate <value>', 'delegate public key')
+  .action(cmd => createUnvote(cmd))
+
+if (!process.argv.slice(2).length) {
+  app.outputHelp()
+
+  process.exit()
+}
+
+app.parse(process.argv)
