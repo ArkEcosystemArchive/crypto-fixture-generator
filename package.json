@@ -1,4 +1,13 @@
 {
+  "name": "@arkecosystem/crypto-fixture-generator",
+  "description": "A CLI to generate cryptography & transaction fixtures for ARK.",
+  "keywords": [
+    "ark",
+    "blockchain",
+    "crypto",
+    "testing",
+    "cli"
+  ],
   "version": "1.0.0",
   "contributors": [
     "Brian Faust <brian@ark.io>"
