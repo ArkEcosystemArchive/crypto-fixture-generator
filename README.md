@@ -4,7 +4,7 @@
     <img src="https://github.com/ArkEcosystem/crypto-fixture-generator/blob/master/banner.png" />
 </p>
 
-> A [CLI](https://en.wikipedia.org/wiki/Command-line_interface) to generate cryptography & transaction fixtures for Ark.
+> A [CLI](https://en.wikipedia.org/wiki/Command-line_interface) to generate cryptography & transaction fixtures for the Ark Blockchain.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

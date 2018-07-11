@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/crypto-fixture-generator",
-  "description": "A CLI to generate cryptography & transaction fixtures for Ark.",
+  "description": "A CLI to generate cryptography & transaction fixtures for the Ark Blockchain.",
   "keywords": [
     "ark",
     "blockchain",
