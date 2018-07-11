@@ -13,6 +13,9 @@
     "Brian Faust <brian@ark.io>"
   ],
   "license": "MIT",
+  "bin": {
+    "ark:fixture": "./bin/cli"
+  },
   "scripts": {
     "cli": "./bin/cli",
     "lint": "eslint ./ --fix"
