@@ -28,15 +28,15 @@ registerCommand('second-signature-registration', 'Generate a second signature re
   .action(cmd => commands.createSecondSignatureRegistration(cmd))
 
 registerCommand('delegate-registration', 'Generate a delegate registration transaction.')
-  .option('-u, --username <value>')
+  .option('-u, --username <value>', 'delegate username', 'boldninja')
   .action(cmd => commands.createDelegateRegistration(cmd))
 
 registerCommand('vote', 'Generate a vote transaction.')
-  .option('-d, --delegate <value>', 'delegate public key')
+  .option('-d, --delegate <value>', 'delegate public key', '022cca9529ec97a772156c152a00aad155ee6708243e65c9d211a589cb5d43234d')
   .action(cmd => commands.createVote(cmd))
 
 registerCommand('unvote', 'Generate a unvote transaction.')
-  .option('-d, --delegate <value>', 'delegate public key')
+  .option('-d, --delegate <value>', 'delegate public key', '022cca9529ec97a772156c152a00aad155ee6708243e65c9d211a589cb5d43234d')
   .action(cmd => commands.createUnvote(cmd))
 
 registerCommand('identity', 'Generate an identity.')
