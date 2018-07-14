@@ -42,6 +42,10 @@ registerCommand('unvote', 'Generate a unvote transaction.')
 registerCommand('identity', 'Generate an identity.')
   .action(cmd => commands.createIdentity(cmd))
 
+registerCommand('message', 'Generate a message.')
+  .option('-m, --message <value>', 'contents to be signed', 'Hello World')
+  .action(cmd => commands.createMessage(cmd))
+
 if (!process.argv.slice(2).length) {
   app.outputHelp()
 
