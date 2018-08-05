@@ -6,7 +6,7 @@
 
 > A [CLI](https://en.wikipedia.org/wiki/Command-line_interface) to generate cryptography & transaction fixtures for the Ark Blockchain.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
 
 ## Installation
 
