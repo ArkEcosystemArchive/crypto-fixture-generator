@@ -28,7 +28,8 @@
     },
     "lint-staged": {
         "*.js": [
-            "eslint --fix"
+            "eslint --fix",
+            "yarn format"
         ]
     },
     "dependencies": {
