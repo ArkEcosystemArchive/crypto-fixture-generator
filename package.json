@@ -26,12 +26,6 @@
             "pre-commit": "lint-staged"
         }
     },
-    "lint-staged": {
-        "*.js": [
-            "eslint --fix",
-            "yarn format"
-        ]
-    },
     "dependencies": {
         "@arkecosystem/crypto": "^2.5.1",
         "clipboardy": "^2.1.0",
