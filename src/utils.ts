@@ -62,10 +62,10 @@ export const buildTransaction = (
     }
 
     if (flags.multiPassphrases) {
-        for (const signer of flags.multiPassphrases.split(";")) {
-            const [passphrase, index] = signer.split(",");
+        const passphrases: string[] = flags.multiPassphrases.split(";");
 
-            builder.multiSign(passphrase, index);
+        for (let i = 0; i < passphrases.length; i++) {
+            builder.multiSign(passphrases[i], i);
         }
     }
 
