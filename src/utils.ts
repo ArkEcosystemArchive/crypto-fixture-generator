@@ -15,7 +15,7 @@ export const sharedFlags = {
     // Encrypt
     passphrase: flags.string({ default: "passphrase" }),
     secondPassphrase: flags.string(),
-    passphrases: flags.string(),
+    multiPassphrases: flags.string(),
 };
 
 export const toJson = <T>(value: T): string => JSON.stringify(value, null, 4);
