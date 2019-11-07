@@ -55,21 +55,32 @@ export class Bulk extends Command {
 
         // Generate a 3x fixtures for every type that allows a vendor field
         for (const transactionType of this.transactionTypesWithVendorField) {
-            this.sign(transactionType, flags.passphrase as string);
-            this.secondSign(transactionType, flags.passphrase as string, flags.secondPassphrase as string);
-            this.multiSign(transactionType, flags.multiPassphrases as string);
+            this.sign(transactionType, flags.passphrase as string, [
+                "--vendorField",
+                "this is a top secret vendor field",
+            ]);
+
+            this.secondSign(transactionType, flags.passphrase as string, flags.secondPassphrase as string, [
+                "--vendorField",
+                "this is a top secret vendor field",
+            ]);
+
+            this.multiSign(transactionType, flags.multiPassphrases as string, [
+                "--vendorField",
+                "this is a top secret vendor field",
+            ]);
         }
     }
 
-    private sign(transactionType, passphrase: string): void {
-        transactionType.run(["--passphrase", passphrase]);
+    private sign(transactionType, passphrase: string, args = []): void {
+        transactionType.run(["--passphrase", passphrase].concat(args));
     }
 
-    private secondSign(transactionType, passphrase: string, secondPassphrase: string): void {
-        transactionType.run(["--passphrase", passphrase, "--secondPassphrase", secondPassphrase]);
+    private secondSign(transactionType, passphrase: string, secondPassphrase: string, args = []): void {
+        transactionType.run(["--passphrase", passphrase, "--secondPassphrase", secondPassphrase].concat(args));
     }
 
-    private multiSign(transactionType, multiPassphrases: string): void {
-        transactionType.run(["--multiPassphrases", multiPassphrases]);
+    private multiSign(transactionType, multiPassphrases: string, args = []): void {
+        transactionType.run(["--multiPassphrases", multiPassphrases].concat(args));
     }
 }
