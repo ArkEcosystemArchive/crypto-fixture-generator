@@ -13,7 +13,7 @@ export const sharedFlags = {
     log: flags.boolean(),
     file: flags.string(),
     // Encrypt
-    passphrase: flags.string({ default: "passphrase" }),
+    passphrase: flags.string({ default: "this is a top secret passphrase" }),
     secondPassphrase: flags.string(),
     multiPassphrases: flags.string(),
 };
@@ -70,6 +70,10 @@ export const buildTransaction = (
     }
 
     const transaction: Interfaces.ITransaction = builder.build();
+
+    if (!transaction.verify()) {
+        console.log([type, flags]);
+    }
 
     return {
         data: transaction.data,

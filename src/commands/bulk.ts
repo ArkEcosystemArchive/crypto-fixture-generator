@@ -120,26 +120,31 @@ export class Bulk extends Command {
 
         // Generate a 3x fixtures for every type
         for (const transactionType of this.transactionTypes) {
-            this.sign(transactionType, flags.passphrase as string);
+            await this.sign(transactionType, flags.passphrase as string);
 
-            this.secondSign(transactionType, flags.passphrase as string, flags.secondPassphrase as string);
+            await this.secondSign(transactionType, flags.passphrase as string, flags.secondPassphrase as string);
 
-            this.multiSign(transactionType, flags.multiPassphrases as string);
+            await this.multiSign(transactionType, flags.multiPassphrases as string);
         }
 
         // Generate a 3x fixtures for every type that allows a vendor field
         const vendorField: string[] = ["--vendorField", flags.vendorField as string];
 
         for (const transactionType of this.transactionTypesWithVendorField) {
-            this.sign(transactionType, flags.passphrase as string, vendorField);
+            await this.sign(transactionType, flags.passphrase as string, vendorField);
 
-            this.secondSign(transactionType, flags.passphrase as string, flags.secondPassphrase as string, vendorField);
+            await this.secondSign(
+                transactionType,
+                flags.passphrase as string,
+                flags.secondPassphrase as string,
+                vendorField,
+            );
 
-            this.multiSign(transactionType, flags.multiPassphrases as string, vendorField);
+            await this.multiSign(transactionType, flags.multiPassphrases as string, vendorField);
         }
 
         // Multi Signature Registration
-        MultiSignatureRegistration.run([
+        await MultiSignatureRegistration.run([
             "--multiPassphrases",
             (flags.multiPassphrases as string)
                 .split(";")
@@ -150,7 +155,7 @@ export class Bulk extends Command {
         ]);
 
         // Second Signature Registration
-        SecondSignatureRegistration.run([
+        await SecondSignatureRegistration.run([
             "--passphrase",
             flags.passphrase as string,
             "--secondPassphrase",
@@ -160,21 +165,21 @@ export class Bulk extends Command {
         ]);
     }
 
-    private sign(transactionType: TransactionType, passphrase: string, args = []): void {
-        transactionType.command.run(
+    private async sign(transactionType: TransactionType, passphrase: string, args = []): Promise<void> {
+        return transactionType.command.run(
             ["--passphrase", passphrase, "--file", `${this.fixturePath}/${transactionType.file}-sign.json`].concat(
                 args,
             ),
         );
     }
 
-    private secondSign(
+    private async secondSign(
         transactionType: TransactionType,
         passphrase: string,
         secondPassphrase: string,
         args = [],
-    ): void {
-        transactionType.command.run(
+    ): Promise<void> {
+        return transactionType.command.run(
             [
                 "--passphrase",
                 passphrase,
@@ -186,8 +191,8 @@ export class Bulk extends Command {
         );
     }
 
-    private multiSign(transactionType: TransactionType, multiPassphrases: string, args = []): void {
-        transactionType.command.run(
+    private async multiSign(transactionType: TransactionType, multiPassphrases: string, args = []): Promise<void> {
+        return transactionType.command.run(
             [
                 "--multiPassphrases",
                 multiPassphrases,
