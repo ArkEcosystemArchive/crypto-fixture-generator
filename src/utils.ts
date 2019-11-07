@@ -85,7 +85,14 @@ export const buildTransaction = (
     const transaction: Interfaces.ITransaction = builder.build();
 
     if (!transaction.verify()) {
-        console.log([type, transaction.data]);
+        console.log([
+            type,
+            transaction.data,
+            Transactions.Verifier.verify(transaction.data),
+            Transactions.Verifier.verifyHash(transaction.data),
+        ]);
+
+        throw new Error(`Failed to verify ${transaction.id} of type ${transaction.type}.`);
     }
 
     return {

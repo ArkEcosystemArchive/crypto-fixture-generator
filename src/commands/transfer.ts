@@ -11,7 +11,7 @@ export class Transfer extends Command {
 
     public static flags: CommandFlags = {
         ...sharedFlags,
-        recipient: flags.string(),
+        recipient: flags.string({ default: "AGeYmgbg2LgGxRW2vNNJvQ88PknEJsYizC" }),
         amount: flags.string({ default: "200000000" }),
         vendorField: flags.string(),
     };
