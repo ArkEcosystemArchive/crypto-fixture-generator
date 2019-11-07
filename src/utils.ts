@@ -1,9 +1,53 @@
-import { Identities, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
+import { Crypto, Identities, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { writeSync } from "clipboardy";
 import { writeFileSync } from "fs";
 
 import { CommandFlags } from "./types";
+
+const verifySignatures = (
+    transaction: Interfaces.ITransactionData,
+    multiSignature: Interfaces.IMultiSignatureAsset,
+): boolean => {
+    const { publicKeys, min }: Interfaces.IMultiSignatureAsset = multiSignature;
+    const { signatures }: Interfaces.ITransactionData = transaction;
+
+    const hash: Buffer = Transactions.Utils.toHash(transaction, {
+        excludeSignature: true,
+        excludeSecondSignature: true,
+        excludeMultiSignature: true,
+    });
+
+    const publicKeyIndexes: { [index: number]: boolean } = {};
+    let verified = false;
+    let verifiedSignatures = 0;
+    for (let i = 0; i < signatures.length; i++) {
+        const signature: string = signatures[i];
+        const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
+
+        if (!publicKeyIndexes[publicKeyIndex]) {
+            publicKeyIndexes[publicKeyIndex] = true;
+        } else {
+            throw new Error("DuplicateParticipantInMultiSignatureError");
+        }
+
+        const partialSignature: string = signature.slice(2, 130);
+        const publicKey: string = publicKeys[publicKeyIndex];
+
+        if (Crypto.Hash.verifySchnorr(hash, partialSignature, publicKey)) {
+            verifiedSignatures++;
+        }
+
+        if (verifiedSignatures === min) {
+            verified = true;
+            break;
+        } else if (signatures.length - (i + 1 - verifiedSignatures) < min) {
+            break;
+        }
+    }
+
+    return verified;
+};
 
 export const sharedFlags = {
     // Config
@@ -79,15 +123,33 @@ export const buildTransaction = (
 
         builder.sign(passphrases[0]);
 
-        // todo
-        // if (type === "multiSignature") {
-        //     builder.sign(passphrases[0]);
-        // }
+        if (type === "multiSignature") {
+            builder.sign(passphrases[0]);
+        }
     }
 
     const transaction: Interfaces.ITransaction = builder.build();
 
-    if (!transaction.verify()) {
+    let verified = false;
+
+    if (transaction.data.signatures) {
+        verified = verifySignatures(transaction.data, {
+            min: flags.min || 2,
+            publicKeys: transaction.data.signatures,
+        });
+
+        if (!verified) {
+            throw new Error("Invalid Multi Signatures");
+        }
+
+        if (type === "multiSignature") {
+            verified = transaction.verify();
+        }
+    } else {
+        verified = transaction.verify();
+    }
+
+    if (!verified) {
         console.log([
             type,
             transaction.data,
