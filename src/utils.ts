@@ -1,4 +1,4 @@
-import { Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
+import { Crypto, Identities, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { writeSync } from "clipboardy";
 import { writeFileSync } from "fs";
@@ -13,9 +13,10 @@ export const sharedFlags = {
     log: flags.boolean({ default: true }),
     file: flags.string(),
     // Encrypt
-    passphrase: flags.string({ default: "passphrase" }),
+    passphrase: flags.string({ default: "this is a top secret passphrase" }),
     secondPassphrase: flags.string(),
     multiPassphrases: flags.string(),
+    ecdsa: flags.boolean({ default: false }),
 };
 
 export const toJson = <T>(value: T): string => JSON.stringify(value, null, 4);
@@ -55,17 +56,44 @@ export const buildTransaction = (
         callback(builder);
     }
 
-    builder.sign((flags.passphrase as unknown) as string);
+    if (flags.useEcdsa) {
+        const keys: Interfaces.IKeyPair = Identities.Keys.fromPassphrase((flags.passphrase as unknown) as string);
+        builder.data.senderPublicKey = keys.publicKey;
 
-    if (flags.secondPassphrase) {
-        builder.secondSign((flags.secondPassphrase as unknown) as string);
-    }
+        const signatureBuffer: Buffer = Transactions.Utils.toHash(builder.data, {
+            excludeSignature: true,
+            excludeSecondSignature: true,
+        });
 
-    if (flags.multiPassphrases) {
-        const passphrases: string[] = flags.multiPassphrases.split(";");
+        builder.data.signature = Crypto.Hash.signECDSA(
+            signatureBuffer,
+            Identities.Keys.fromPassphrase((flags.passphrase as unknown) as string),
+        );
 
-        for (let i = 0; i < passphrases.length; i++) {
-            builder.multiSign(passphrases[i], i);
+        if (flags.secondPassphrase) {
+            const secondSignatureBuffer: Buffer = Transactions.Utils.toHash(builder.data, {
+                excludeSignature: false,
+                excludeSecondSignature: true,
+            });
+
+            builder.data.secondSignature = Crypto.Hash.signECDSA(
+                secondSignatureBuffer,
+                Identities.Keys.fromPassphrase((flags.secondPassphrase as unknown) as string),
+            );
+        }
+    } else {
+        builder.sign((flags.passphrase as unknown) as string);
+
+        if (flags.secondPassphrase) {
+            builder.secondSign((flags.secondPassphrase as unknown) as string);
+        }
+
+        if (flags.multiPassphrases) {
+            const passphrases: string[] = flags.multiPassphrases.split(";");
+
+            for (let i = 0; i < passphrases.length; i++) {
+                builder.multiSign(passphrases[i], i);
+            }
         }
     }
 
