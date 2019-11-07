@@ -1,4 +1,4 @@
-import { Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
+import { Identities, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { writeSync } from "clipboardy";
 import { writeFileSync } from "fs";
@@ -55,7 +55,9 @@ export const buildTransaction = (
         callback(builder);
     }
 
-    builder.sign((flags.passphrase as unknown) as string);
+    if (!flags.multiPassphrases) {
+        builder.sign((flags.passphrase as unknown) as string);
+    }
 
     if (flags.secondPassphrase) {
         builder.secondSign((flags.secondPassphrase as unknown) as string);
@@ -64,15 +66,26 @@ export const buildTransaction = (
     if (flags.multiPassphrases) {
         const passphrases: string[] = flags.multiPassphrases.split(";");
 
+        builder.senderPublicKey(
+            Identities.PublicKey.fromMultiSignatureAsset({
+                min: flags.min || 2,
+                publicKeys: passphrases.map((passphrase: string) => Identities.PublicKey.fromPassphrase(passphrase)),
+            }),
+        );
+
         for (let i = 0; i < passphrases.length; i++) {
             builder.multiSign(passphrases[i], i);
+        }
+
+        if (type === "multiSignature") {
+            builder.sign(passphrases[0]);
         }
     }
 
     const transaction: Interfaces.ITransaction = builder.build();
 
     if (!transaction.verify()) {
-        console.log([type, flags]);
+        console.log([type, transaction.data]);
     }
 
     return {

@@ -146,10 +146,12 @@ export class Bulk extends Command {
         // Multi Signature Registration
         await MultiSignatureRegistration.run([
             "--multiPassphrases",
+            flags.multiPassphrases as string,
+            "--publicKeys",
             (flags.multiPassphrases as string)
                 .split(";")
                 .map((passphrase: string) => Identities.PublicKey.fromPassphrase(passphrase))
-                .join(";"),
+                .join(","),
             "--file",
             `${this.fixturePath}/multi-signature-registration.json`,
         ]);
