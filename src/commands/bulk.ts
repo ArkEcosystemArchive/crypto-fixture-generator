@@ -39,35 +39,37 @@ export class Bulk extends Command {
         Vote,
     ];
 
+    private transactionTypesWithVendorField = [HtlcLock, MultiPayment, Transfer];
+
     public async run(): Promise<void> {
         const { flags } = this.parse(Bulk);
 
-        // todo: add vendor field scenarios
         // todo: write all fixtures to files
 
-        // Generate with a signature
+        // Generate a 3x fixtures for every type
         for (const transactionType of this.transactionTypes) {
-            transactionType.run(["--passphrase", flags.passphrase as string]);
+            this.sign(transactionType, flags.passphrase as string);
+            this.secondSign(transactionType, flags.passphrase as string, flags.secondPassphrase as string);
+            this.multiSign(transactionType, flags.multiPassphrases as string);
         }
 
-        // Generate with a second signature
-        for (const transactionType of this.transactionTypes) {
-            transactionType.run([
-                "--passphrase",
-                flags.passphrase as string,
-                "--secondPassphrase",
-                flags.secondPassphrase as string,
-            ]);
+        // Generate a 3x fixtures for every type that allows a vendor field
+        for (const transactionType of this.transactionTypesWithVendorField) {
+            this.sign(transactionType, flags.passphrase as string);
+            this.secondSign(transactionType, flags.passphrase as string, flags.secondPassphrase as string);
+            this.multiSign(transactionType, flags.multiPassphrases as string);
         }
+    }
 
-        // Generate with multiple signatures
-        for (const transactionType of this.transactionTypes) {
-            transactionType.run([
-                "--passphrase",
-                flags.passphrase as string,
-                "--multiPassphrases",
-                flags.multiPassphrases as string,
-            ]);
-        }
+    private sign(transactionType, passphrase: string): void {
+        transactionType.run(["--passphrase", passphrase]);
+    }
+
+    private secondSign(transactionType, passphrase: string, secondPassphrase: string): void {
+        transactionType.run(["--passphrase", passphrase, "--secondPassphrase", secondPassphrase]);
+    }
+
+    private multiSign(transactionType, multiPassphrases: string): void {
+        transactionType.run(["--multiPassphrases", multiPassphrases]);
     }
 }
