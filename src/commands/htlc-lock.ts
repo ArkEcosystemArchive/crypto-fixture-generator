@@ -11,7 +11,7 @@ export class HtlcLock extends Command {
 
     public static flags: CommandFlags = {
         ...sharedFlags,
-        recipient: flags.string({ default: "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri" }),
+        recipient: flags.string(),
         amount: flags.string({ default: "200000000" }),
         vendorField: flags.string(),
         secretHash: flags.string({
