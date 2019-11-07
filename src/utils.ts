@@ -77,9 +77,12 @@ export const buildTransaction = (
             builder.multiSign(passphrases[i], i);
         }
 
-        if (type === "multiSignature") {
-            builder.sign(passphrases[0]);
-        }
+        builder.sign(passphrases[0]);
+
+        // todo
+        // if (type === "multiSignature") {
+        //     builder.sign(passphrases[0]);
+        // }
     }
 
     const transaction: Interfaces.ITransaction = builder.build();
@@ -94,6 +97,11 @@ export const buildTransaction = (
 
         throw new Error(`Failed to verify ${transaction.id} of type ${transaction.type}.`);
     }
+
+    console.log(
+        `Generated: Type ${transaction.type} | ${!!transaction.data.signature} | ${!!transaction.data
+            .secondSignature} | ${!!transaction.data.signatures}`,
+    );
 
     return {
         data: transaction.data,
