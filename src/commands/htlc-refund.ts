@@ -3,7 +3,7 @@ import Command, { flags } from "@oclif/command";
 import { CommandFlags } from "../types";
 import { buildTransaction, processCommand, sharedFlags } from "../utils";
 
-export class SecondSignatureRegistration extends Command {
+export class HtlcRefund extends Command {
     public static description = "Generate a Type 10 transaction";
 
     public static examples: string[] = [];
@@ -16,7 +16,7 @@ export class SecondSignatureRegistration extends Command {
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(SecondSignatureRegistration);
+        const { flags } = this.parse(HtlcRefund);
 
         processCommand(flags, () =>
             buildTransaction(flags, "htlcRefund", builder =>
