@@ -146,7 +146,7 @@ export class Bulk extends Command {
                 .map((passphrase: string) => Identities.PublicKey.fromPassphrase(passphrase))
                 .join(";"),
             "--file",
-            `${this.fixturePath}/multi-signature.json`,
+            `${this.fixturePath}/multi-signature-registration.json`,
         ]);
 
         // Second Signature Registration
