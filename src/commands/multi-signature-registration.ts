@@ -3,7 +3,7 @@ import Command, { flags } from "@oclif/command";
 import { CommandFlags } from "../types";
 import { buildTransaction, processCommand, sharedFlags } from "../utils";
 
-export class MultiSignature extends Command {
+export class MultiSignatureRegistration extends Command {
     public static description = "Generate a Type 4 transaction";
 
     public static examples: string[] = [];
@@ -18,7 +18,7 @@ export class MultiSignature extends Command {
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(MultiSignature);
+        const { flags } = this.parse(MultiSignatureRegistration);
 
         processCommand(flags, () =>
             buildTransaction(flags, "multiSignature", builder =>

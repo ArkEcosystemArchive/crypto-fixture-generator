@@ -9,8 +9,8 @@ export const sharedFlags = {
     // Config
     network: flags.string({ default: "testnet" }),
     // Output
-    copy: flags.boolean({ default: false }),
-    log: flags.boolean({ default: true }),
+    copy: flags.boolean(),
+    log: flags.boolean(),
     file: flags.string(),
     // Encrypt
     passphrase: flags.string({ default: "passphrase" }),
