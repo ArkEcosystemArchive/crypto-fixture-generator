@@ -1,5 +1,6 @@
 import { Identities } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
+import * as Table from "cli-table3";
 import { ensureDirSync } from "fs-extra";
 import { resolve } from "path";
 
@@ -118,53 +119,85 @@ export class Bulk extends Command {
             flags.vendorField = "this is a top secret vendor field";
         }
 
+        // Keep track of generate transactions for logging
+        const transactions = [];
+
         // Generate a 3x fixtures for every type
         for (const transactionType of this.transactionTypes) {
-            await this.sign(transactionType, flags.passphrase as string);
+            transactions.push(await this.sign(transactionType, flags.passphrase as string));
 
-            await this.secondSign(transactionType, flags.passphrase as string, flags.secondPassphrase as string);
+            transactions.push(
+                await this.secondSign(transactionType, flags.passphrase as string, flags.secondPassphrase as string),
+            );
 
-            await this.multiSign(transactionType, flags.multiPassphrases as string);
+            transactions.push(await this.multiSign(transactionType, flags.multiPassphrases as string));
         }
 
         // Generate a 3x fixtures for every type that allows a vendor field
         const vendorField: string[] = ["--vendorField", flags.vendorField as string];
 
         for (const transactionType of this.transactionTypesWithVendorField) {
-            await this.sign(transactionType, flags.passphrase as string, vendorField);
+            transactions.push(await this.sign(transactionType, flags.passphrase as string, vendorField));
 
-            await this.secondSign(
-                transactionType,
-                flags.passphrase as string,
-                flags.secondPassphrase as string,
-                vendorField,
+            transactions.push(
+                await this.secondSign(
+                    transactionType,
+                    flags.passphrase as string,
+                    flags.secondPassphrase as string,
+                    vendorField,
+                ),
             );
 
-            await this.multiSign(transactionType, flags.multiPassphrases as string, vendorField);
+            transactions.push(await this.multiSign(transactionType, flags.multiPassphrases as string, vendorField));
         }
 
         // Multi Signature Registration
-        await MultiSignatureRegistration.run([
-            "--multiPassphrases",
-            flags.multiPassphrases as string,
-            "--publicKeys",
-            (flags.multiPassphrases as string)
-                .split(";")
-                .map((passphrase: string) => Identities.PublicKey.fromPassphrase(passphrase))
-                .join(","),
-            "--file",
-            `${this.fixturePath}/multi-signature-registration.json`,
-        ]);
+        transactions.push(
+            await MultiSignatureRegistration.run([
+                "--multiPassphrases",
+                flags.multiPassphrases as string,
+                "--publicKeys",
+                (flags.multiPassphrases as string)
+                    .split(";")
+                    .map((passphrase: string) => Identities.PublicKey.fromPassphrase(passphrase))
+                    .join(","),
+                "--file",
+                `${this.fixturePath}/multi-signature-registration.json`,
+            ]),
+        );
 
         // Second Signature Registration
-        await SecondSignatureRegistration.run([
-            "--passphrase",
-            flags.passphrase as string,
-            "--secondPassphrase",
-            flags.secondPassphrase as string,
-            "--file",
-            `${this.fixturePath}/second-signature-registration.json`,
-        ]);
+        transactions.push(
+            await SecondSignatureRegistration.run([
+                "--passphrase",
+                flags.passphrase as string,
+                "--secondPassphrase",
+                flags.secondPassphrase as string,
+                "--file",
+                `${this.fixturePath}/second-signature-registration.json`,
+            ]),
+        );
+
+        // Print a log
+        const table = new Table({
+            head: ["Type", "Signature", "Second Signature", "Multi Signature", "ECDSA", "Schnorr"],
+        });
+
+        for (const transaction of transactions) {
+            const { data } = transaction;
+
+            // @ts-ignore
+            table.push([
+                data.type,
+                data.signature ? "Yes" : "No",
+                data.secondSignature ? "Yes" : "No",
+                data.signatures ? "Yes" : "No",
+                flags.ecdsa ? "Yes" : "No",
+                flags.ecdsa ? "No" : "Yes",
+            ]);
+        }
+
+        console.log(table.toString());
     }
 
     private async sign(transactionType: TransactionType, passphrase: string, args = []): Promise<void> {

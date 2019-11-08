@@ -1,3 +1,4 @@
+import { Interfaces } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 
 import { CommandFlags } from "../types";
@@ -15,15 +16,17 @@ export class HtlcRefund extends Command {
         }),
     };
 
-    public async run(): Promise<void> {
+    public async run(): Promise<{ data: Interfaces.ITransactionData; serialized: string }> {
         const { flags } = this.parse(HtlcRefund);
 
-        processCommand(flags, () =>
+        const transaction = processCommand(flags, () =>
             buildTransaction(flags, "htlcRefund", builder =>
                 builder.htlcRefundAsset({
                     lockTransactionId: flags.lockTransactionId as string,
                 }),
             ),
         );
+
+        return transaction;
     }
 }

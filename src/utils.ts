@@ -71,7 +71,7 @@ export const logToTerminal = <T>(data: T): void => console.log(toJson(data));
 
 export const copyToClipboard = <T>(data: T): void => writeSync(toJson(data));
 
-export const processCommand = <T>(flags: CommandFlags, callback: () => T): void => {
+export const processCommand = <T>(flags: CommandFlags, callback: () => T): T => {
     const data = callback();
 
     if (flags.copy) {
@@ -85,6 +85,8 @@ export const processCommand = <T>(flags: CommandFlags, callback: () => T): void 
     if (flags.file) {
         writeToFile(data, flags.file);
     }
+
+    return data;
 };
 
 export const buildTransaction = (
@@ -101,7 +103,7 @@ export const buildTransaction = (
     }
 
     let multiParticipants: string[] | undefined;
-    if (flags.useEcdsa) {
+    if (flags.ecdsa) {
         const keys: Interfaces.IKeyPair = Identities.Keys.fromPassphrase((flags.passphrase as unknown) as string);
         builder.data.senderPublicKey = keys.publicKey;
 
@@ -194,11 +196,6 @@ export const buildTransaction = (
 
         throw new Error(`Failed to verify ${transaction.id} of type ${transaction.type}.`);
     }
-
-    console.log(
-        `Generated: Type ${transaction.type} | ${!!transaction.data.signature} | ${!!transaction.data
-            .secondSignature} | ${!!transaction.data.signatures}`,
-    );
 
     return {
         data: transaction.data,

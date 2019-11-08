@@ -1,3 +1,4 @@
+import { Interfaces } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 
 import { CommandFlags } from "../types";
@@ -16,10 +17,10 @@ export class MultiPayment extends Command {
         vendorField: flags.string(),
     };
 
-    public async run(): Promise<void> {
+    public async run(): Promise<{ data: Interfaces.ITransactionData; serialized: string }> {
         const { flags } = this.parse(MultiPayment);
 
-        processCommand(flags, () =>
+        const transaction = processCommand(flags, () =>
             buildTransaction(flags, "multiPayment", builder => {
                 for (const payment of (((flags.payments as string) as unknown) as string).split(";")) {
                     const [address, amount] = payment.split(",");
@@ -32,5 +33,7 @@ export class MultiPayment extends Command {
                 }
             }),
         );
+
+        return transaction;
     }
 }

@@ -1,4 +1,4 @@
-import { Identities } from "@arkecosystem/crypto";
+import { Identities, Interfaces } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 
 import { CommandFlags } from "../types";
@@ -21,10 +21,10 @@ export class HtlcLock extends Command {
         expirationValue: flags.integer({ default: Math.floor(Date.now() / 1000) }),
     };
 
-    public async run(): Promise<void> {
+    public async run(): Promise<{ data: Interfaces.ITransactionData; serialized: string }> {
         const { flags } = this.parse(HtlcLock);
 
-        processCommand(flags, () =>
+        const transaction = processCommand(flags, () =>
             buildTransaction(flags, "htlcLock", builder => {
                 builder
                     .htlcLockAsset({
@@ -44,5 +44,7 @@ export class HtlcLock extends Command {
                 }
             }),
         );
+
+        return transaction;
     }
 }
