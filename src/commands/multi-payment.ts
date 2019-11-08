@@ -13,6 +13,7 @@ export class MultiPayment extends Command {
         payments: flags.string({
             default: "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri,1;AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1,2",
         }),
+        vendorField: flags.string(),
     };
 
     public async run(): Promise<void> {
@@ -24,6 +25,10 @@ export class MultiPayment extends Command {
                     const [address, amount] = payment.split(",");
 
                     builder.addPayment(address, amount);
+                }
+
+                if (flags.vendorField) {
+                    builder.vendorField(flags.vendorField as string);
                 }
             }),
         );
