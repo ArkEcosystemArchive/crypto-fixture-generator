@@ -60,6 +60,7 @@ export const sharedFlags = {
     passphrase: flags.string({ default: "this is a top secret passphrase" }),
     secondPassphrase: flags.string(),
     multiPassphrases: flags.string(),
+    ecdsa: flags.boolean({ default: false }),
 };
 
 export const toJson = <T>(value: T): string => JSON.stringify(value, null, 4);
@@ -99,37 +100,66 @@ export const buildTransaction = (
         callback(builder);
     }
 
-    if (!flags.multiPassphrases) {
-        builder.sign((flags.passphrase as unknown) as string);
-    }
+    let multiParticipants: string[] | undefined;
+    if (flags.useEcdsa) {
+        const keys: Interfaces.IKeyPair = Identities.Keys.fromPassphrase((flags.passphrase as unknown) as string);
+        builder.data.senderPublicKey = keys.publicKey;
 
-    if (flags.secondPassphrase) {
-        builder.secondSign((flags.secondPassphrase as unknown) as string);
-    }
+        const signatureBuffer: Buffer = Transactions.Utils.toHash(builder.data, {
+            excludeSignature: true,
+            excludeSecondSignature: true,
+        });
 
-    let multiParticipants: string[];
-    if (flags.multiPassphrases) {
-        const passphrases: string[] = flags.multiPassphrases.split(";");
+        builder.data.signature = Crypto.Hash.signECDSA(
+            signatureBuffer,
+            Identities.Keys.fromPassphrase((flags.passphrase as unknown) as string),
+        );
 
-        multiParticipants = passphrases.map((passphrase: string) => Identities.PublicKey.fromPassphrase(passphrase));
+        if (flags.secondPassphrase) {
+            const secondSignatureBuffer: Buffer = Transactions.Utils.toHash(builder.data, {
+                excludeSignature: false,
+                excludeSecondSignature: true,
+            });
 
-        if (type !== "multiSignature") {
-            builder.senderPublicKey(
-                Identities.PublicKey.fromMultiSignatureAsset({
-                    min: flags.min || 2,
-                    publicKeys: multiParticipants,
-                }),
+            builder.data.secondSignature = Crypto.Hash.signECDSA(
+                secondSignatureBuffer,
+                Identities.Keys.fromPassphrase((flags.secondPassphrase as unknown) as string),
             );
-        } else {
-            builder.senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]));
+        }
+    } else {
+        if (!flags.multiPassphrases) {
+            builder.sign((flags.passphrase as unknown) as string);
         }
 
-        for (let i = 0; i < passphrases.length; i++) {
-            builder.multiSign(passphrases[i]);
+        if (flags.secondPassphrase) {
+            builder.secondSign((flags.secondPassphrase as unknown) as string);
         }
 
-        if (type === "multiSignature") {
-            builder.sign(passphrases[0]);
+        if (flags.multiPassphrases) {
+            const passphrases: string[] = flags.multiPassphrases.split(";");
+
+            multiParticipants = passphrases.map((passphrase: string) =>
+                Identities.PublicKey.fromPassphrase(passphrase),
+            );
+
+            if (type !== "multiSignature") {
+                builder.senderPublicKey(
+                    Identities.PublicKey.fromMultiSignatureAsset({
+                        min: flags.min || 2,
+                        publicKeys: multiParticipants,
+                    }),
+                );
+            } else {
+                builder.senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]));
+            }
+
+            for (let i = 0; i < passphrases.length; i++) {
+                builder.multiSign(passphrases[i]);
+            }
+
+            if (type === "multiSignature") {
+                builder.sign(passphrases[0]);
+            }
         }
     }
 
@@ -137,7 +167,7 @@ export const buildTransaction = (
 
     let verified = false;
 
-    if (transaction.data.signatures) {
+    if (transaction.data.signatures && multiParticipants) {
         verified = verifySignatures(transaction.data, {
             min: flags.min || 2,
             publicKeys: multiParticipants,
