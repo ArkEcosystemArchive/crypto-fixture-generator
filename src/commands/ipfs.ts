@@ -1,3 +1,4 @@
+import { Interfaces } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 
 import { CommandFlags } from "../types";
@@ -13,11 +14,13 @@ export class IPFS extends Command {
         hash: flags.string({ default: "QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w" }),
     };
 
-    public async run(): Promise<void> {
+    public async run(): Promise<{ data: Interfaces.ITransactionData; serialized: string }> {
         const { flags } = this.parse(IPFS);
 
-        processCommand(flags, () =>
+        const transaction = processCommand(flags, () =>
             buildTransaction(flags, "ipfs", builder => builder.ipfsAsset(flags.hash as string)),
         );
+
+        return transaction;
     }
 }

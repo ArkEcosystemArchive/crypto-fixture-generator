@@ -1,3 +1,4 @@
+import { Interfaces } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 
 import { CommandFlags } from "../types";
@@ -16,10 +17,10 @@ export class HtlcClaim extends Command {
         unlockSecret: flags.string({ default: "my secret that should be 32bytes" }),
     };
 
-    public async run(): Promise<void> {
+    public async run(): Promise<{ data: Interfaces.ITransactionData; serialized: string }> {
         const { flags } = this.parse(HtlcClaim);
 
-        processCommand(flags, () =>
+        const transaction = processCommand(flags, () =>
             buildTransaction(flags, "htlcClaim", builder =>
                 builder.htlcClaimAsset({
                     lockTransactionId: flags.lockTransactionId as string,
@@ -27,5 +28,7 @@ export class HtlcClaim extends Command {
                 }),
             ),
         );
+
+        return transaction;
     }
 }

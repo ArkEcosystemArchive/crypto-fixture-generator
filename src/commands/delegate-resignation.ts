@@ -1,3 +1,4 @@
+import { Interfaces } from "@arkecosystem/crypto";
 import Command from "@oclif/command";
 
 import { CommandFlags } from "../types";
@@ -12,9 +13,11 @@ export class DelegateResignation extends Command {
         ...sharedFlags,
     };
 
-    public async run(): Promise<void> {
+    public async run(): Promise<{ data: Interfaces.ITransactionData; serialized: string }> {
         const { flags } = this.parse(DelegateResignation);
 
-        processCommand(flags, () => buildTransaction(flags, "delegateResignation"));
+        const transaction = processCommand(flags, () => buildTransaction(flags, "delegateResignation"));
+
+        return transaction;
     }
 }

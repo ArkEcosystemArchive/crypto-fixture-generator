@@ -1,4 +1,4 @@
-import { Managers, Transactions, Types } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import Command from "@oclif/command";
 
 import { CommandFlags } from "../types";
@@ -13,12 +13,12 @@ export class SecondSignatureRegistration extends Command {
         ...sharedFlags,
     };
 
-    public async run(): Promise<void> {
+    public async run(): Promise<{ data: Interfaces.ITransactionData; serialized: string }> {
         const { flags } = this.parse(SecondSignatureRegistration);
 
         Managers.configManager.setFromPreset(flags.network as Types.NetworkName);
 
-        processCommand(flags, () => {
+        const transaction = processCommand(flags, () => {
             const transaction = Transactions.BuilderFactory.secondSignature()
                 .signatureAsset(flags.secondPassphrase as string)
                 .sign(flags.passphrase as string)
@@ -29,5 +29,7 @@ export class SecondSignatureRegistration extends Command {
                 serialized: transaction.serialized.toString("hex"),
             };
         });
+
+        return transaction;
     }
 }
