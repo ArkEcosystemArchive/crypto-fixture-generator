@@ -107,21 +107,26 @@ export const buildTransaction = (
         builder.secondSign((flags.secondPassphrase as unknown) as string);
     }
 
+    let multiParticipants: string[];
     if (flags.multiPassphrases) {
         const passphrases: string[] = flags.multiPassphrases.split(";");
 
-        builder.senderPublicKey(
-            Identities.PublicKey.fromMultiSignatureAsset({
-                min: flags.min || 2,
-                publicKeys: passphrases.map((passphrase: string) => Identities.PublicKey.fromPassphrase(passphrase)),
-            }),
-        );
+        multiParticipants = passphrases.map((passphrase: string) => Identities.PublicKey.fromPassphrase(passphrase));
 
-        for (let i = 0; i < passphrases.length; i++) {
-            builder.multiSign(passphrases[i], i);
+        if (type !== "multiSignature") {
+            builder.senderPublicKey(
+                Identities.PublicKey.fromMultiSignatureAsset({
+                    min: flags.min || 2,
+                    publicKeys: multiParticipants,
+                }),
+            );
+        } else {
+            builder.senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]));
         }
 
-        builder.sign(passphrases[0]);
+        for (let i = 0; i < passphrases.length; i++) {
+            builder.multiSign(passphrases[i]);
+        }
 
         if (type === "multiSignature") {
             builder.sign(passphrases[0]);
@@ -135,7 +140,7 @@ export const buildTransaction = (
     if (transaction.data.signatures) {
         verified = verifySignatures(transaction.data, {
             min: flags.min || 2,
-            publicKeys: transaction.data.signatures,
+            publicKeys: multiParticipants,
         });
 
         if (!verified) {
