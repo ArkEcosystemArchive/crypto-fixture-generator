@@ -180,7 +180,7 @@ export class Bulk extends Command {
 
         // Print a log
         const table = new Table({
-            head: ["Type", "Signature", "Second Signature", "Multi Signature", "ECDSA", "Schnorr"],
+            head: ["Type", "Signature", "Second Signature", "Multi Signature", "ECDSA", "Schnorr", "Vendor Field"],
         });
 
         for (const transaction of transactions) {
@@ -194,6 +194,7 @@ export class Bulk extends Command {
                 data.signatures ? "Yes" : "No",
                 flags.ecdsa ? "Yes" : "No",
                 flags.ecdsa ? "No" : "Yes",
+                data.vendorField ? "Yes" : "No",
             ]);
         }
 
