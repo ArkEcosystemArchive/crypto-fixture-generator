@@ -96,7 +96,7 @@ export const buildTransaction = (
 ): { data: Interfaces.ITransactionData; serialized: string } => {
     Managers.configManager.setFromPreset(flags.network as Types.NetworkName);
 
-    const builder = Transactions.BuilderFactory[type]();
+    const builder = Transactions.BuilderFactory[type]().nonce("1");
 
     if (callback) {
         callback(builder);
