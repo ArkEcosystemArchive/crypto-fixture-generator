@@ -16,7 +16,11 @@
 git clone https://github.com/ArkEcosystem/crypto-fixture-generator
 cd crypto-fixture-generator
 yarn install
+yarn build
 yarn cli transfer -l
+
+# Or bulk generate with:
+yarn fixture bulk
 ```
 
 ## Security
