@@ -21,8 +21,8 @@ export class SecondSignatureRegistration extends Command {
         const transaction = processCommand(flags, () => {
             const transaction = Transactions.BuilderFactory.secondSignature()
                 .signatureAsset(flags.secondPassphrase as string)
-                .sign(flags.passphrase as string)
                 .nonce("1")
+                .sign(flags.passphrase as string)
                 .build();
 
             return {
