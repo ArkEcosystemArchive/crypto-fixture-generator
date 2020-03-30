@@ -44,7 +44,7 @@
         "@oclif/plugin-help": "^2.2.1",
         "@oclif/plugin-not-found": "^1.2.3",
         "@oclif/plugin-plugins": "^1.7.8",
-        "cli-table3": "^0.5.1",
+        "cli-table3": "^0.6.0",
         "clipboardy": "^2.1.0"
     },
     "devDependencies": {
