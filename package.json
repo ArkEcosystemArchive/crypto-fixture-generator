@@ -52,7 +52,7 @@
         "@commitlint/config-conventional": "^8.2.0",
         "@oclif/dev-cli": "^1.22.2",
         "@sindresorhus/tsconfig": "^0.7.0",
-        "@types/eslint": "^6.1.3",
+        "@types/eslint": "^7.0.0",
         "@types/eslint-plugin-prettier": "^3.0.0",
         "@types/prettier": "^2.0.0",
         "@typescript-eslint/eslint-plugin": "^2.6.1",
